@@ -39,7 +39,12 @@ export interface ParsedLine {
   expression: string; // the friendly text after the name
   math: string; // what math.js will calculate
   isPercent: boolean; // the line is just a percentage, like `rate = 21%`
+  currencies: string[]; // currency symbols typed on the line, like `$`
 }
+
+// Currency symbols are only labels: they're removed before calculating
+// and put back on the answer. Nothing is converted.
+const CURRENCY = /[$€£]/g;
 
 const NAMED = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.*)$/;
 
@@ -47,10 +52,12 @@ export function parseLine(line: string): ParsedLine {
   const named = line.match(NAMED);
   const name = named ? named[1] : null;
   const expression = (named ? named[2] : line).trim();
+  const currencies = [...new Set(expression.match(CURRENCY) ?? [])];
   return {
     name,
     expression,
-    math: translateExpression(expression),
+    math: translateExpression(expression.replace(CURRENCY, "")),
     isPercent: new RegExp(String.raw`^${NUM}\s*%$`).test(expression),
+    currencies,
   };
 }

@@ -13,13 +13,15 @@ export interface LineResult {
   name: string; // `price`, or the automatic `line3`
   display?: string; // the formatted answer
   value?: number;
+  currency?: string; // `$`, `€` or `£` when the answer is an amount of money
   error?: string;
   unknownName?: string; // the name that wasn't recognized, for fixes
 }
 
-export function formatNumber(value: number): string {
+export function formatNumber(value: number, currency = ""): string {
   const rounded = Math.round(value * 100) / 100;
-  return Object.is(rounded, -0) ? "0" : String(rounded);
+  if (Object.is(rounded, -0) || rounded === 0) return `${currency}0`;
+  return rounded < 0 ? `-${currency}${-rounded}` : `${currency}${rounded}`;
 }
 
 // Names a line uses, skipping function names like `sqrt` in `sqrt(9)`.
@@ -36,6 +38,7 @@ function namesUsed(node: MathNode): string[] {
 export function calculateSheet(text: string): LineResult[] {
   const lines = text.split("\n");
   const known: Record<string, number> = {};
+  const knownCurrency: Record<string, string> = {};
   const results: LineResult[] = [];
 
   // Names defined anywhere in the sheet, to explain "used before it's defined".
@@ -62,14 +65,24 @@ export function calculateSheet(text: string): LineResult[] {
       return;
     }
 
-    for (const used of namesUsed(node)) {
-      if (used in known || CONSTANTS.has(used)) continue;
-      result.unknownName = used;
-      result.error = definedLater.has(used) || /^line\d+$/.test(used)
-        ? `${used} isn't defined above this line.`
-        : `I don't know ${used}.`;
+    const used = namesUsed(node);
+    for (const usedName of used) {
+      if (usedName in known || CONSTANTS.has(usedName)) continue;
+      result.unknownName = usedName;
+      result.error = definedLater.has(usedName) || /^line\d+$/.test(usedName)
+        ? `${usedName} isn't defined above this line.`
+        : `I don't know ${usedName}.`;
       return;
     }
+
+    // The answer is money if the line, or any name it uses, is money.
+    const currencies = new Set(parsed.currencies);
+    used.forEach((n) => knownCurrency[n] && currencies.add(knownCurrency[n]));
+    if (currencies.size > 1) {
+      result.error = `Can't mix ${[...currencies].join(" and ")} on one line.`;
+      return;
+    }
+    const currency = [...currencies][0];
 
     let value: unknown;
     try {
@@ -93,8 +106,10 @@ export function calculateSheet(text: string): LineResult[] {
     }
 
     result.value = value;
-    result.display = parsed.isPercent ? `${formatNumber(value * 100)}%` : formatNumber(value);
+    result.currency = currency;
+    result.display = parsed.isPercent ? `${formatNumber(value * 100)}%` : formatNumber(value, currency);
     known[name] = value;
+    if (currency) knownCurrency[name] = currency;
   });
 
   return results;

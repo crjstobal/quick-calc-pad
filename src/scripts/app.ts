@@ -3,6 +3,16 @@ import { calculateSheet, type LineResult } from "../lib/calculate";
 
 const pad = document.querySelector<HTMLTextAreaElement>("#pad")!;
 const results = document.querySelector<HTMLOListElement>("#results")!;
+const gutter = document.querySelector<HTMLDivElement>("#gutter")!;
+
+// Small name label next to each typed line, in the paper's margin.
+function renderLabel(result: LineResult): HTMLSpanElement {
+  const label = document.createElement("span");
+  label.textContent = result.name;
+  label.title = result.name;
+  label.style.top = `calc(var(--line-height) * ${result.lineNumber - 1})`;
+  return label;
+}
 
 function renderResult(result: LineResult): HTMLLIElement {
   const row = document.createElement("li");
@@ -32,7 +42,9 @@ function growPad() {
 }
 
 function update() {
-  results.replaceChildren(...calculateSheet(pad.value).map(renderResult));
+  const sheet = calculateSheet(pad.value);
+  results.replaceChildren(...sheet.map(renderResult));
+  gutter.replaceChildren(...sheet.map(renderLabel));
   growPad();
 }
 

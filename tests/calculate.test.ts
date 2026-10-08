@@ -85,3 +85,29 @@ describe("one bad line doesn't stop the others", () => {
     expect(answers("5 / 0")[0][1]).toBe("That's dividing by zero.");
   });
 });
+
+describe("currency symbols are labels, not conversions", () => {
+  it("$5 + $10 is $15", () => {
+    expect(answers("$5 + $10")).toEqual([["line1", "$15"]]);
+  });
+
+  it("symbols after the number work too", () => {
+    expect(answers("5€ + 10€")).toEqual([["line1", "€15"]]);
+  });
+
+  it("names keep their currency", () => {
+    expect(answers("price = $80\nprice * 2\n20% off price")).toEqual([
+      ["price", "$80"],
+      ["line2", "$160"],
+      ["line3", "$64"],
+    ]);
+  });
+
+  it("negative amounts put the sign first", () => {
+    expect(answers("$5 - $10")).toEqual([["line1", "-$5"]]);
+  });
+
+  it("mixing currencies is an error", () => {
+    expect(answers("$5 + €3")[0][1]).toBe("Can't mix $ and € on one line.");
+  });
+});

@@ -28,7 +28,7 @@ A single page, arranged top to bottom:
 
 1. **Folder tabs**: Notes (the person's own blank sheet), VAT, Discounts, and Compound interest, shaped like the tabs on a physical folder. Each tab is its own sheet; clicking one switches to it.
 2. **Intro tips**: a short text explaining how to use the page.
-3. **Typing area**: where lines are written.
+3. **Typing area**: where lines are written, with each line's name (`line1`, or `price` after a rename) written small in the left margin.
 4. **A visual separator** between typing and results.
 5. **Results area**: one row per line, showing the line's name and its answer.
 
@@ -45,11 +45,15 @@ Source: `scope.md > The POC Boundary`.
 - Supported in this version:
   - Basic math: `+ - * /`, brackets, and powers.
   - Percentage phrases: `X% of Y`, `X% off Y`, `Y + X%`, `Y - X%`.
+  - Currency symbols `$`, `€`, `£` as labels, not conversions: the answer keeps the symbol, and so do names that hold money. (Added at the first hands-on check.)
 - [ ] Typing `20% off 80` shows `64`.
 - [ ] Typing `(2 + 3) * 4` shows `20`.
 - [ ] Typing `150 + 21%` shows `181.5`.
 - [ ] Results update without pressing any button.
 - [ ] Empty lines show no result row and no error.
+- [ ] `$5 + $10` shows `$15`, and after `price = $80`, `price * 2` shows `$160`.
+- [ ] Mixing symbols on one line (`$5 + €3`) shows an error.
+- [ ] Each typed line has its name in the margin.
 
 ### Line Names and Reuse
 Source: `scope.md > The Unique Kernel`.

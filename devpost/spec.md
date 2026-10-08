@@ -54,7 +54,7 @@ Carried from `prd.md > Look and Feel` and `scope.md > Inspiration & Identity`.
 ## Components
 
 ### Page Shell (`index.astro`)
-Builds the HTML: folder tabs, intro tips, typing area (`<textarea>`), separator, results list. Loads the font and styles.
+Builds the HTML: folder tabs, intro tips, typing area (`<textarea>`, no line wrapping) with a margin column of line-name labels, separator, results list. Loads the font and styles.
 PRD ref: `prd.md > Screens and Layout`.
 
 ### Translator (`lib/translate.ts`)
@@ -64,11 +64,12 @@ Rewrites one line of friendly text into plain math. Rules, applied in this order
 - `A of B` → `(A) * (B)` (so `21% of 150` and `rate of net` both work)
 - any remaining `A%` → `(A/100)`
 - `name = …` at the start is kept as the line's name; only the right side is translated.
+- Currency symbols (`$ € £`) are removed before translating and reported back, so the calculator can put them on the answer.
 
 PRD ref: `prd.md > Typing Calculations`.
 
 ### Sheet Calculator (`lib/calculate.ts`)
-Takes a sheet's whole text and returns one result per line: `{ name, value | error, suggestion? }`. It works top to bottom with a growing list of known names. Each non-empty line is named either by `name = …` in the text or automatically as `line<N>` (N = the line's number in the textarea). One bad line gives an error for that line only, and the rest keep calculating. Values are rounded to 2 decimal places for display. A line that is a bare percentage shows as `21%`.
+Takes a sheet's whole text and returns one result per line: `{ name, value | error, suggestion? }`. It works top to bottom with a growing list of known names. Each non-empty line is named either by `name = …` in the text or automatically as `line<N>` (N = the line's number in the textarea). One bad line gives an error for that line only, and the rest keep calculating. Values are rounded to 2 decimal places for display. A line that is a bare percentage shows as `21%`. An answer is money when its line, or any name it uses, has a currency symbol; it's shown with that symbol (`$15`, `-$5`), and two different symbols on one line is an error.
 PRD ref: `prd.md > Typing Calculations`, `prd.md > Line Names and Reuse`, `prd.md > Errors and Fixes`.
 
 ### Name Suggestions (`lib/suggest.ts`)

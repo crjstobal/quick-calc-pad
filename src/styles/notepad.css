@@ -101,7 +101,7 @@ body {
   background: var(--paper);
   border: 1px solid var(--manila-edge);
   border-radius: 4px 16px 16px 16px;
-  padding: 18px 22px 22px 56px;
+  padding: 18px 22px 22px 74px;
   position: relative;
   box-shadow: 0 10px 30px rgba(30, 42, 74, 0.12);
 }
@@ -109,7 +109,7 @@ body {
 .sheet::before {
   content: "";
   position: absolute;
-  left: 40px;
+  left: 62px;
   top: 0;
   bottom: 0;
   width: 2px;
@@ -129,6 +129,33 @@ body {
   font-weight: 700;
 }
 
+/* Name labels in the margin, one per typed line */
+.pad-wrap {
+  position: relative;
+}
+
+.gutter {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 18px);
+  width: 48px;
+  pointer-events: none;
+}
+
+.gutter span {
+  position: absolute;
+  right: 0;
+  height: var(--line-height);
+  line-height: calc(var(--line-height) + 4px);
+  font-size: 12px;
+  color: var(--ink-soft);
+  opacity: 0.75;
+  white-space: nowrap;
+  max-width: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Ruled typing area */
 .pad {
   display: block;
@@ -137,7 +164,9 @@ body {
   border: none;
   outline: none;
   resize: none;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: pre;
   padding: 0;
   font: inherit;
   font-size: 22px;
@@ -225,9 +254,18 @@ body {
 
 @media (max-width: 520px) {
   .sheet {
-    padding-left: 40px;
+    padding-left: 58px;
+    padding-right: 14px;
   }
   .sheet::before {
-    left: 26px;
+    left: 48px;
+  }
+  .gutter {
+    right: calc(100% + 14px);
+    width: 38px;
+  }
+  .gutter span {
+    font-size: 10px;
+    max-width: 38px;
   }
 }

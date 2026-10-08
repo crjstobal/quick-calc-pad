@@ -47,14 +47,18 @@ const tabs = [
         </p>
 
         <label class="visually-hidden" for="pad">Calculations</label>
-        <textarea
-          id="pad"
-          class="pad"
-          spellcheck="false"
-          autocomplete="off"
-          autocapitalize="off"
-          rows="5"
-          placeholder="20% off 80"></textarea>
+        <div class="pad-wrap">
+          <div class="gutter" id="gutter" aria-hidden="true"></div>
+          <textarea
+            id="pad"
+            class="pad"
+            spellcheck="false"
+            autocomplete="off"
+            autocapitalize="off"
+            wrap="off"
+            rows="5"
+            placeholder="20% off 80"></textarea>
+        </div>
 
         <hr class="separator" />
 
