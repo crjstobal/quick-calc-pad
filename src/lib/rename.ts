@@ -43,3 +43,17 @@ export function renameLine(text: string, lineNumber: number, newName: string): R
 
   return { text: renamed.join("\n") };
 }
+
+// Replaces one misspelled name on a single line, for the "Did you mean …?" fix.
+export function fixName(text: string, lineNumber: number, from: string, to: string): string {
+  const lines = text.split("\n");
+  const line = lines[lineNumber - 1] ?? "";
+  const { name } = parseLine(line);
+  if (name) {
+    const [left, ...right] = line.split("=");
+    lines[lineNumber - 1] = `${left}=${right.join("=").replace(wholeWord(from), to)}`;
+  } else {
+    lines[lineNumber - 1] = line.replace(wholeWord(from), to);
+  }
+  return lines.join("\n");
+}

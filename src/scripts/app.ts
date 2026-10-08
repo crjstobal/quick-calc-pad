@@ -1,6 +1,6 @@
 // Connects the notepad to the calculator: recalculates and redraws on every keystroke.
 import { calculateSheet, type LineResult } from "../lib/calculate";
-import { renameLine } from "../lib/rename";
+import { fixName, renameLine } from "../lib/rename";
 
 const pad = document.querySelector<HTMLTextAreaElement>("#pad")!;
 const results = document.querySelector<HTMLOListElement>("#results")!;
@@ -12,6 +12,7 @@ function renderLabel(result: LineResult): HTMLSpanElement {
   label.textContent = result.name;
   label.title = result.name;
   label.style.top = `calc(var(--line-height) * ${result.lineNumber - 1})`;
+  if (result.error) label.classList.add("has-error");
   return label;
 }
 
@@ -29,15 +30,39 @@ function renderResult(result: LineResult): HTMLLIElement {
 
   const value = document.createElement("span");
   value.className = "value";
+  row.append(name, value);
+
   if (result.error) {
     row.classList.add("has-error");
-    value.textContent = result.error;
+    value.textContent = "can't calculate";
+    row.append(renderTooltip(result));
   } else {
     value.textContent = result.display ?? "";
   }
 
-  row.append(name, value);
   return row;
+}
+
+// The explanation under a broken line, with a one-click fix for misspelled names.
+function renderTooltip(result: LineResult): HTMLDivElement {
+  const tooltip = document.createElement("div");
+  tooltip.className = "tooltip";
+  tooltip.setAttribute("role", "note");
+  tooltip.textContent = result.error ?? "";
+
+  if (result.unknownName && result.suggestion) {
+    const fix = document.createElement("button");
+    fix.type = "button";
+    fix.className = "fix";
+    fix.textContent = `Did you mean ${result.suggestion}?`;
+    fix.addEventListener("click", () => {
+      pad.value = fixName(pad.value, result.lineNumber, result.unknownName!, result.suggestion!);
+      update();
+      pad.focus();
+    });
+    tooltip.append(" ", fix);
+  }
+  return tooltip;
 }
 
 // Swaps the name for a text box. Enter or clicking away saves, Escape cancels.

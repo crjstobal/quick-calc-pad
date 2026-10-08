@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Type two lines where the second uses `line1`. Click `line1` in the results, type `price`, and press Enter. Both lines should now say `price`, with the same answers.
   Commit: `Add click-to-rename for line names`
 
-- [ ] **3. Mistakes explain themselves and offer a fix**
+- [x] **3. Mistakes explain themselves and offer a fix**
   Becomes usable: A line that can't be calculated is marked in red on its result row, with a tooltip explaining why. A misspelled name gets a "Did you mean price?" button that fixes the line. Other lines keep working.
   Why now: Once names can be typed and renamed, typos in names are the most likely mistake. This finishes the Notes sheet before we add more sheets.
   PRD ref: `prd.md > Errors and Fixes`, `prd.md > The Core Journey` (step 6), `prd.md > States and Boundaries`

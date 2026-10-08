@@ -257,14 +257,70 @@ body {
   white-space: nowrap;
 }
 
+.result.has-error {
+  flex-wrap: wrap;
+}
+
+.result.has-error .name,
 .result.has-error .value {
   color: var(--error);
+}
+
+.result.has-error .value {
   text-decoration: underline wavy var(--error);
   text-underline-offset: 6px;
   font-weight: 400;
   font-size: 18px;
-  white-space: normal;
-  text-align: right;
+}
+
+/* Tooltip-style note pointing up at the broken line */
+.tooltip {
+  position: relative;
+  flex-basis: 100%;
+  margin: 4px 0 10px;
+  padding: 6px 12px;
+  background: var(--error-soft);
+  color: var(--error);
+  border: 1px solid rgba(163, 59, 50, 0.3);
+  border-radius: 10px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.tooltip::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 18px;
+  width: 12px;
+  height: 12px;
+  background: var(--error-soft);
+  border-left: 1px solid rgba(163, 59, 50, 0.3);
+  border-top: 1px solid rgba(163, 59, 50, 0.3);
+  transform: rotate(45deg);
+}
+
+.fix {
+  font: inherit;
+  font-weight: 700;
+  color: var(--paper);
+  background: var(--error);
+  border: none;
+  border-radius: 8px;
+  padding: 0 10px;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.fix:hover,
+.fix:focus-visible {
+  background: var(--ink);
+  outline: none;
+}
+
+.gutter span.has-error {
+  color: var(--error);
+  opacity: 1;
 }
 
 .visually-hidden {

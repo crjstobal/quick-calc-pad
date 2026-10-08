@@ -1,6 +1,7 @@
 // Calculates a whole sheet, top to bottom, one result per line.
 import { create, all, type MathNode, type SymbolNode } from "mathjs";
 import { parseLine } from "./translate";
+import { suggestName } from "./suggest";
 
 const math = create(all);
 
@@ -16,6 +17,7 @@ export interface LineResult {
   currency?: string; // `$`, `€` or `£` when the answer is an amount of money
   error?: string;
   unknownName?: string; // the name that wasn't recognized, for fixes
+  suggestion?: string; // a known name spelled like the unknown one
 }
 
 export function formatNumber(value: number, currency = ""): string {
@@ -69,9 +71,12 @@ export function calculateSheet(text: string): LineResult[] {
     for (const usedName of used) {
       if (usedName in known || CONSTANTS.has(usedName)) continue;
       result.unknownName = usedName;
-      result.error = definedLater.has(usedName) || /^line\d+$/.test(usedName)
-        ? `${usedName} isn't defined above this line.`
-        : `I don't know ${usedName}.`;
+      if (definedLater.has(usedName) || /^line\d+$/.test(usedName)) {
+        result.error = `${usedName} isn't defined above this line.`;
+        return;
+      }
+      result.error = `I don't know ${usedName}.`;
+      result.suggestion = suggestName(usedName, Object.keys(known));
       return;
     }
 
