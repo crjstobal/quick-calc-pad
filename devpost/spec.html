@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quick Calc Pad Spec</title>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64;
+    --line: #e2dfd6; --accent: #1f6f5c; --accent-soft: #e3f1ec;
+    --warn: #a33b32; --warn-soft: #f7e3e0;
+    --paper: #fdf8e8; --rule: #cfdcec; --navy: #1e2a4a; --manila: #e9d7a5; --margin: #e08a8a;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151514; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09e96;
+      --line: #34332f; --accent: #5cc3a6; --accent-soft: #1d332c;
+      --warn: #e8857b; --warn-soft: #3a2220;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 940px; margin: 0 auto; padding: 40px 16px 80px; }
+  .tag { display: inline-block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 2px 10px; }
+  h1 { font-size: 38px; margin: 12px 0 4px; letter-spacing: -.02em; }
+  .lede { font-size: 18px; color: var(--muted); margin: 0 0 8px; }
+  h2 { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 44px 0 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+  .plain p { margin: 0 0 10px; } .plain p:last-child { margin: 0; }
+
+  svg { width: 100%; height: auto; display: block; }
+  svg text { fill: var(--ink); font-family: -apple-system, sans-serif; font-size: 14px; }
+  svg .sub { fill: var(--muted); font-size: 11.5px; }
+  .node rect { fill: var(--card); stroke: var(--line); stroke-width: 1.5; transition: fill .3s, stroke .3s; }
+  .node.on rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; }
+  .zone { fill: none; stroke: var(--muted); stroke-dasharray: 5 5; opacity: .5; }
+  .edge { stroke: var(--muted); stroke-width: 1.5; fill: none; transition: stroke .3s; }
+  .edge.on { stroke: var(--accent); stroke-width: 2.5; }
+
+  .step { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
+  .step h3 { margin: 0; font-size: 16px; color: var(--accent); }
+  .step .files { font-size: 13px; color: var(--muted); }
+  .controls { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--card); border-color: var(--accent); }
+  button:disabled { opacity: .4; cursor: default; }
+  .count { color: var(--muted); font-size: 14px; }
+
+  .xlate { display: grid; grid-template-columns: 1fr auto 1fr auto auto; gap: 10px; align-items: center; font-family: var(--mono); font-size: 14px; }
+  .xlate .ar { color: var(--muted); }
+  .xlate .r { font-weight: 700; color: var(--accent); }
+  .xlate > div { padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  @media (max-width: 640px) { .xlate { font-size: 12px; gap: 6px; } }
+
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+  summary { cursor: pointer; padding: 13px 18px; font-weight: 600; }
+  summary small { font-weight: 400; color: var(--muted); margin-left: 8px; font-family: var(--mono); }
+  details > div { padding: 0 18px 14px; }
+  .ref { font-size: 13px; color: var(--muted); }
+
+  .look { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .look { grid-template-columns: 1fr; } }
+  .sw { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .sw span { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .sw i { width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--line); display: inline-block; }
+  .sheet { background: var(--paper); color: var(--navy); border-radius: 4px 12px 12px 12px; padding: 12px 16px 12px 40px; position: relative;
+    background-image: repeating-linear-gradient(transparent 0 29px, var(--rule) 29px 30px);
+    font-family: "Kalam", "Bradley Hand", cursive; font-size: 18px; line-height: 30px; }
+  .sheet::before { content: ""; position: absolute; left: 28px; top: 0; bottom: 0; width: 1.5px; background: var(--margin); }
+  .ftabs { display: flex; gap: 3px; padding-left: 10px; }
+  .ftabs span { background: var(--manila); color: var(--navy); border-radius: 9px 9px 0 0; padding: 3px 12px; font-family: "Kalam", "Bradley Hand", cursive; font-size: 15px; opacity: .7; }
+  .ftabs span.a { background: var(--paper); opacity: 1; }
+  .res { display: flex; justify-content: space-between; font-weight: 700; }
+  .sheet hr { border: none; border-top: 2px dashed var(--navy); opacity: .35; margin: 0; }
+  pre { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; overflow-x: auto; font-size: 13px; font-family: var(--mono); margin: 0; }
+  .flag { border-left: 4px solid var(--warn); }
+  .note { color: var(--muted); font-size: 14px; margin-top: 40px; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">Spec · approved</span>
+  <h1>Quick Calc Pad: how it's built</h1>
+  <p class="lede">One Astro page, a script that runs in the browser, math.js, and localStorage. Published free on GitHub Pages.</p>
+
+  <h2>In plain language</h2>
+  <div class="card plain">
+    <p><b>Astro</b> builds the page. A <code>&lt;script&gt;</code> on it runs in the visitor's browser and does all the work. “Static” only means there's no server behind it.</p>
+    <p>As you type, our own <b>translator</b> rewrites friendly phrases into plain math, and <b>math.js</b> calculates the answer, reusing earlier answers by name.</p>
+    <p>Each tab's text is saved in <b>localStorage</b>, a small notebook the browser keeps for one site. No server, no accounts, no API keys.</p>
+  </div>
+
+  <h2>Architecture: follow the journey</h2>
+  <div class="card">
+    <svg viewBox="0 0 900 330" role="img" aria-label="Architecture: GitHub Pages delivers the page; in the browser, the textarea feeds the translator, then math.js, then the results; storage saves sheets; rename and suggestions modify the text.">
+      <defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a887f"/></marker></defs>
+      <rect class="zone" x="190" y="12" width="700" height="306" rx="16"/>
+      <text x="206" y="34" class="sub">Visitor's browser (everything runs here)</text>
+
+      <g class="node" id="n-pages"><rect x="10" y="130" width="150" height="66" rx="12"/><text x="85" y="158" text-anchor="middle" font-weight="600">GitHub Pages</text><text x="85" y="178" text-anchor="middle" class="sub">sends the built page</text></g>
+      <g class="node" id="n-text"><rect x="220" y="130" width="150" height="66" rx="12"/><text x="295" y="158" text-anchor="middle" font-weight="600">Tabs + textarea</text><text x="295" y="178" text-anchor="middle" class="sub">index.astro · app.ts</text></g>
+      <g class="node" id="n-tr"><rect x="410" y="60" width="140" height="66" rx="12"/><text x="480" y="88" text-anchor="middle" font-weight="600">Translator</text><text x="480" y="108" text-anchor="middle" class="sub">translate.ts</text></g>
+      <g class="node" id="n-math"><rect x="590" y="60" width="140" height="66" rx="12"/><text x="660" y="88" text-anchor="middle" font-weight="600">math.js</text><text x="660" y="108" text-anchor="middle" class="sub">calculate.ts</text></g>
+      <g class="node" id="n-res"><rect x="760" y="130" width="120" height="66" rx="12"/><text x="820" y="158" text-anchor="middle" font-weight="600">Results</text><text x="820" y="178" text-anchor="middle" class="sub">name · answer</text></g>
+      <g class="node" id="n-fix"><rect x="500" y="200" width="190" height="66" rx="12"/><text x="595" y="228" text-anchor="middle" font-weight="600">Rename · Did you mean</text><text x="595" y="248" text-anchor="middle" class="sub">rename.ts · suggest.ts</text></g>
+      <g class="node" id="n-store"><rect x="220" y="246" width="150" height="58" rx="12"/><text x="295" y="270" text-anchor="middle" font-weight="600">localStorage</text><text x="295" y="289" text-anchor="middle" class="sub">storage.ts · templates.ts</text></g>
+
+      <path class="edge" id="e-load" marker-end="url(#m)" d="M160,163 L218,163"/>
+      <path class="edge" id="e-tr" marker-end="url(#m)" d="M370,150 C390,150 390,93 408,93"/>
+      <path class="edge" id="e-math" marker-end="url(#m)" d="M550,93 L588,93"/>
+      <path class="edge" id="e-res" marker-end="url(#m)" d="M730,93 C760,93 790,100 815,128"/>
+      <path class="edge" id="e-fix" marker-end="url(#m)" d="M820,196 C820,235 740,233 692,233"/>
+      <path class="edge" id="e-back" marker-end="url(#m)" d="M500,233 C420,233 380,200 372,190"/>
+      <path class="edge" id="e-save" marker-end="url(#m)" d="M285,198 L285,244"/>
+      <path class="edge" id="e-restore" marker-end="url(#m)" d="M305,244 L305,200"/>
+    </svg>
+    <div class="step">
+      <h3 id="st"></h3>
+      <div id="sx"></div>
+      <div class="files" id="sf"></div>
+      <div class="controls"><button id="pv">Back</button><button class="primary" id="nx">Next</button><span class="count" id="sc"></span></div>
+    </div>
+  </div>
+
+  <h2>The translator: friendly phrase → plain math</h2>
+  <div class="card">
+    <div class="xlate">
+      <div>20% off 80</div><div class="ar">→</div><div>80 * (1 - 20/100)</div><div class="ar">=</div><div class="r">64</div>
+      <div>150 + 21%</div><div class="ar">→</div><div>150 * (1 + 21/100)</div><div class="ar">=</div><div class="r">181.5</div>
+      <div>21% of 150</div><div class="ar">→</div><div>(21/100) * 150</div><div class="ar">=</div><div class="r">31.5</div>
+      <div>vat = rate of net</div><div class="ar">→</div><div>vat: rate * net</div><div class="ar">=</div><div class="r">31.5</div>
+      <div>(2 + 3) * 4</div><div class="ar">→</div><div>(unchanged)</div><div class="ar">=</div><div class="r">20</div>
+    </div>
+    <p class="ref" style="margin:12px 0 0">Our translator handles every <code>%</code>, so how math.js treats <code>%</code> doesn't matter. That's still checked in the first build step.</p>
+  </div>
+
+  <h2>Components → files → PRD</h2>
+  <details><summary>Page Shell<small>src/pages/index.astro</small></summary><div>Tabs, intro tips, textarea, separator, results list. Loads the font and styles.<div class="ref">prd.md › Screens and Layout</div></div></details>
+  <details><summary>Translator<small>src/lib/translate.ts</small></summary><div>Rules in order: <code>A% off B</code>, <code>B ± A%</code>, <code>A of B</code>, any other <code>A%</code>. Keeps a leading <code>name =</code>.<div class="ref">prd.md › Typing Calculations</div></div></details>
+  <details><summary>Sheet Calculator<small>src/lib/calculate.ts</small></summary><div>Text → one result per line, top to bottom. Names come from <code>name = …</code> or <code>line&lt;N&gt;</code>. One bad line never stops the others. Rounds to 2 decimals and shows bare percentages as <code>21%</code>.<div class="ref">prd.md › Typing Calculations · Line Names and Reuse · Errors and Fixes</div></div></details>
+  <details><summary>Name Suggestions<small>src/lib/suggest.ts</small></summary><div>Closest known name, at most 2 letters off, otherwise only the explanation.<div class="ref">prd.md › Errors and Fixes</div></div></details>
+  <details><summary>Rename Tool<small>src/lib/rename.ts</small></summary><div>Writes <code>new =</code> on the line and replaces whole-word uses elsewhere. Refuses names that are taken or more than one word.<div class="ref">prd.md › Line Names and Reuse</div></div></details>
+  <details><summary>Templates<small>src/lib/templates.ts</small></summary><div>Notes (empty), VAT, Discounts, Compound interest starting text.<div class="ref">prd.md › Templates</div></div></details>
+  <details><summary>Storage<small>src/lib/storage.ts</small></summary><div>All sheets under <code>quick-calc-pad:v1</code>. Unreadable data means starting fresh from the templates.<div class="ref">prd.md › Saving in the Browser</div></div></details>
+  <details><summary>Page Script<small>src/scripts/app.ts</small></summary><div>Switches tabs, recalculates and saves on each keystroke, draws results, and handles rename (Enter saves, Escape cancels) and the error tooltip.<div class="ref">prd.md › The Core Journey</div></div></details>
+
+  <h2>What's saved</h2>
+  <pre>localStorage["quick-calc-pad:v1"] = {
+  "sheets": {
+    "notes":     "20% off 80\nline1 * 2",
+    "vat":       "net = 150\nrate = 21%\nvat = rate of net\ntotal = net + vat",
+    "discounts": "…",
+    "compound":  "…"
+  }
+}</pre>
+  <p class="ref">Names live in the text itself, and results are always recalculated, never stored.</p>
+
+  <h2>Look and feel (proposed)</h2>
+  <div class="look">
+    <div>
+      <div class="ftabs"><span class="a">Notes</span><span>VAT</span><span>Discounts</span><span>Compound interest</span></div>
+      <div class="sheet">
+        <div>price = 20% off 80</div><div>price * 2</div><hr>
+        <div class="res"><span>price</span><span>64</span></div><div class="res"><span>line2</span><span>128</span></div>
+      </div>
+      <p class="ref">Preview in Kalam (loaded from Google Fonts here; the app bundles it locally).</p>
+    </div>
+    <div class="card">
+      <b>Kalam</b> everywhere (your pick), at about 20px. A cream ruled sheet with a red margin line, navy ink, manila folder tabs, and a dashed separator.
+      <div class="sw">
+        <span><i style="background:#fdf8e8"></i>paper</span><span><i style="background:#cfdcec"></i>rules</span>
+        <span><i style="background:#e08a8a"></i>margin</span><span><i style="background:#1e2a4a"></i>ink</span>
+        <span><i style="background:#e9d7a5"></i>tabs</span><span><i style="background:#a33b32"></i>errors</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Run, check, publish</h2>
+  <pre>npm install
+npm run dev     # open http://localhost:4321/quick-calc-pad/
+npm test        # Vitest checks of the PRD examples
+git push        # GitHub Action → GitHub Pages (Settings › Pages › Source: GitHub Actions)</pre>
+
+  <h2>Where it can break</h2>
+  <div class="card">
+    <ul style="margin:0;padding-left:20px">
+      <li><b>Unit words</b> (<code>m</code>, <code>in</code>, <code>cm</code>): math.js may read them as units, so that line shows “Units aren't supported yet.”</li>
+      <li><b>Inserting a line in the middle</b> shifts the automatic <code>lineN</code> names. That's accepted; renaming a line fixes its name.</li>
+      <li><b>Using a name before it's defined</b> shows an error on that line.</li>
+      <li><b>Unreadable saved data</b> means starting fresh from the templates.</li>
+    </ul>
+  </div>
+
+  <h2>Please check</h2>
+  <div class="card flag">
+    <ul style="margin:0;padding-left:20px">
+      <li>Errors are marked on the line's <b>result row</b> (red, wavy, with the tooltip there), not inside the typed text. That's the cost of using a simple textarea.</li>
+      <li>The palette above is a proposal. The font is Kalam, your pick.</li>
+      <li>Repo <code>quick-calc-pad</code>, so the live address is <code>&lt;user&gt;.github.io/quick-calc-pad</code>.</li>
+    </ul>
+  </div>
+
+  <p class="note">Companion to <code>devpost/spec.md</code>, which is the canonical plan.</p>
+</main>
+<script>
+  const steps = [
+    { t: "1 · Open the page", x: "GitHub Pages sends the built page. The script restores every sheet from localStorage (or the templates on a first visit) and shows Notes.", f: "index.astro · app.ts · storage.ts · templates.ts", n: ["n-pages","n-text","n-store"], e: ["e-load","e-restore"] },
+    { t: "2 · Type “20% off 80”", x: "On every keystroke, each line goes through the translator, then math.js. The results show line1 64, and the sheet is saved.", f: "app.ts · translate.ts · calculate.ts · storage.ts", n: ["n-text","n-tr","n-math","n-res","n-store"], e: ["e-tr","e-math","e-res","e-save"] },
+    { t: "3 · Type “line1 * 2”", x: "Each answer is stored under its line's name before the next line is calculated, so line1 is available.", f: "calculate.ts", n: ["n-math","n-res"], e: ["e-math","e-res"] },
+    { t: "4 · Rename line1 → price", x: "Clicking the name in the results rewrites the text: line 1 becomes “price = 20% off 80”, and later uses of line1 become price.", f: "rename.ts · app.ts", n: ["n-res","n-fix","n-text"], e: ["e-fix","e-back"] },
+    { t: "5 · Typo “pric + 5”", x: "math.js lists the names used, pric is unknown, and the suggestion finds price. Clicking the fix replaces it in the text.", f: "calculate.ts · suggest.ts", n: ["n-math","n-res","n-fix","n-text"], e: ["e-res","e-fix","e-back"] },
+    { t: "6 · VAT tab", x: "The textarea shows the VAT sheet's text. Notes is saved and untouched.", f: "app.ts · storage.ts · templates.ts", n: ["n-text","n-store"], e: ["e-restore"] },
+    { t: "7 · Change net to 200", x: "The same loop recalculates every line below.", f: "translate.ts · calculate.ts", n: ["n-text","n-tr","n-math","n-res"], e: ["e-tr","e-math","e-res","e-save"] },
+    { t: "8 · Reload", x: "Every sheet comes back from localStorage. Results are recalculated, never stored.", f: "storage.ts", n: ["n-pages","n-text","n-store"], e: ["e-load","e-restore"] },
+  ];
+  let i = 0; const $ = id => document.getElementById(id);
+  function render() {
+    const s = steps[i];
+    $("st").textContent = s.t; $("sx").textContent = s.x; $("sf").textContent = "Files: " + s.f; $("sc").textContent = (i+1) + " / " + steps.length;
+    document.querySelectorAll(".node").forEach(n => n.classList.toggle("on", s.n.includes(n.id)));
+    document.querySelectorAll(".edge").forEach(e => e.classList.toggle("on", s.e.includes(e.id)));
+    $("pv").disabled = i === 0; $("nx").disabled = i === steps.length - 1;
+  }
+  $("nx").onclick = () => { if (i < steps.length-1) { i++; render(); } };
+  $("pv").onclick = () => { if (i > 0) { i--; render(); } };
+  render();
+</script>
+</body>
+</html>

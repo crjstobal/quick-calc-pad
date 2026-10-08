@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Font Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Kalam:wght@400;700&family=Gaegu:wght@400;700&family=Inter:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #f6f4ef; --ink: #1d1d1b; --muted: #6b6a64; --paper: #fdf8e8; --rule: #cfdcec; --navy: #1e2a4a; --manila: #e9d7a5; --margin: #e08a8a; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #151514; --ink: #ecebe6; --muted: #a09e96; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 -apple-system, sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; padding: 32px 16px 60px; }
+  h1 { margin: 0 0 4px; } p.lede { color: var(--muted); margin: 0 0 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 22px; }
+  h2 { font-size: 18px; margin: 0 0 8px; } h2 small { color: var(--muted); font-weight: 400; font-size: 14px; }
+  .ftabs { display: flex; gap: 3px; padding-left: 10px; }
+  .ftabs span { background: var(--manila); color: var(--navy); border-radius: 9px 9px 0 0; padding: 3px 11px; font-size: 16px; opacity: .75; }
+  .ftabs span.a { background: var(--paper); opacity: 1; }
+  .sheet { background: var(--paper); color: var(--navy); border-radius: 4px 12px 12px 12px; padding: 10px 16px 10px 40px; position: relative;
+    background-image: repeating-linear-gradient(transparent 0 33px, var(--rule) 33px 34px); font-size: 21px; line-height: 34px; }
+  .sheet::before { content: ""; position: absolute; left: 28px; top: 0; bottom: 0; width: 1.5px; background: var(--margin); }
+  .sheet hr { border: none; border-top: 2px dashed var(--navy); opacity: .35; margin: 0; }
+  .res { display: flex; justify-content: space-between; font-weight: 700; }
+  .tip { font-size: 16px; opacity: .6; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Pick a font</h1>
+  <p class="lede">The same notepad in four options. Look at the digits in particular: 1 and 7, 0 and 6, and the decimals.</p>
+  <div class="grid" id="g"></div>
+</main>
+<script>
+  const opts = [
+    { n: "A · Patrick Hand", s: "handwritten everywhere", body: "'Patrick Hand'", head: "'Patrick Hand'" },
+    { n: "B · Kalam", s: "handwritten, bolder", body: "'Kalam'", head: "'Kalam'" },
+    { n: "C · Gaegu", s: "rounder handwriting", body: "'Gaegu'", head: "'Gaegu'" },
+    { n: "D · Mix", s: "handwritten tabs + tips, clean Inter for the math", body: "'Inter'", head: "'Patrick Hand'" },
+  ];
+  const lines = ["price = 20% off 80", "vat = 21% of price", "total = price + vat", "line4 = 1171.07 / 6"];
+  const res = [["price","64"],["vat","13.44"],["total","77.44"],["line4","195.18"]];
+  document.getElementById("g").innerHTML = opts.map(o => `
+    <div>
+      <h2>${o.n} <small>${o.s}</small></h2>
+      <div class="ftabs" style="font-family:${o.head}"><span class="a">Notes</span><span>VAT</span><span>Discounts</span><span>Compound</span></div>
+      <div class="sheet" style="font-family:${o.body}">
+        <div class="tip" style="font-family:${o.head}">Tip: try “20% off 80”</div>
+        ${lines.map(l => `<div>${l}</div>`).join("")}
+        <hr>
+        ${res.map(r => `<div class="res"><span>${r[0]}</span><span>${r[1]}</span></div>`).join("")}
+      </div>
+    </div>`).join("");
+</script>
+</body>
+</html>

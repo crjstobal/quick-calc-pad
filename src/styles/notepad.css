@@ -1,0 +1,233 @@
+:root {
+  --desk: #efe9dc;
+  --paper: #fdf8e8;
+  --rule: #cfdcec;
+  --margin: #e08a8a;
+  --ink: #1e2a4a;
+  --ink-soft: #5b6480;
+  --manila: #e9d7a5;
+  --manila-edge: #d4bd80;
+  --error: #a33b32;
+  --error-soft: #f7e3e0;
+  --line-height: 36px;
+  --font: "Kalam", "Comic Sans MS", cursive;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --desk: #2a2622;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--desk);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 20px;
+  min-height: 100vh;
+}
+
+.desk {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 16px 8px;
+  color: var(--ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  .title {
+    color: var(--paper);
+  }
+}
+
+/* Folder tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding-left: 14px;
+  overflow-x: auto;
+}
+
+.tab {
+  font: inherit;
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--manila);
+  border: 1px solid var(--manila-edge);
+  border-bottom: none;
+  border-radius: 14px 14px 0 0;
+  padding: 6px 18px 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  opacity: 0.8;
+  position: relative;
+  top: 1px;
+}
+
+.tab:hover {
+  opacity: 1;
+}
+
+.tab[aria-selected="true"] {
+  background: var(--paper);
+  border-color: var(--manila-edge);
+  opacity: 1;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* The sheet of paper */
+.sheet {
+  background: var(--paper);
+  border: 1px solid var(--manila-edge);
+  border-radius: 4px 16px 16px 16px;
+  padding: 18px 22px 22px 56px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(30, 42, 74, 0.12);
+}
+
+.sheet::before {
+  content: "";
+  position: absolute;
+  left: 40px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--margin);
+  opacity: 0.7;
+}
+
+.tips {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.tips em {
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* Ruled typing area */
+.pad {
+  display: block;
+  width: 100%;
+  min-height: calc(var(--line-height) * 5);
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  padding: 0;
+  font: inherit;
+  font-size: 22px;
+  line-height: var(--line-height);
+  color: var(--ink);
+  background: transparent;
+  background-image: repeating-linear-gradient(
+    transparent 0 calc(var(--line-height) - 1px),
+    var(--rule) calc(var(--line-height) - 1px) var(--line-height)
+  );
+  background-attachment: local;
+}
+
+.pad::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.45;
+}
+
+/* Hand-drawn-looking separator */
+.separator {
+  border: none;
+  height: 6px;
+  margin: 14px 0 10px;
+  background-image: radial-gradient(circle, var(--ink) 1.4px, transparent 1.6px);
+  background-size: 12px 6px;
+  opacity: 0.45;
+}
+
+/* Results */
+.results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.results:empty::before {
+  content: "Answers show up here.";
+  color: var(--ink-soft);
+  opacity: 0.6;
+  font-size: 18px;
+}
+
+.result {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  min-height: var(--line-height);
+  line-height: var(--line-height);
+  border-bottom: 1px dashed rgba(30, 42, 74, 0.12);
+}
+
+.result .name {
+  font: inherit;
+  color: var(--ink-soft);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.result .value {
+  font-weight: 700;
+  font-size: 22px;
+  white-space: nowrap;
+}
+
+.result.has-error .value {
+  color: var(--error);
+  text-decoration: underline wavy var(--error);
+  text-underline-offset: 6px;
+  font-weight: 400;
+  font-size: 18px;
+  white-space: normal;
+  text-align: right;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .sheet {
+    padding-left: 40px;
+  }
+  .sheet::before {
+    left: 26px;
+  }
+}

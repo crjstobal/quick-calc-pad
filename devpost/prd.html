@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quick Calc Pad PRD</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64;
+    --line: #e2dfd6; --accent: #1f6f5c; --accent-soft: #e3f1ec;
+    --warn: #a33b32; --warn-soft: #f7e3e0; --later: #9a6a12; --later-soft: #f8eedb;
+    --paper: #fffdf6; --rule: #d9e4f0;
+    --hand: "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151514; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09e96;
+      --line: #34332f; --accent: #5cc3a6; --accent-soft: #1d332c;
+      --warn: #e8857b; --warn-soft: #3a2220; --later: #e0b25a; --later-soft: #3a2f1a;
+      --paper: #232320; --rule: #2f3640;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 40px 16px 80px; }
+  .tag { display: inline-block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 2px 10px; }
+  h1 { font-size: 38px; margin: 12px 0 4px; letter-spacing: -.02em; }
+  .lede { font-size: 18px; color: var(--muted); margin: 0 0 24px; }
+  h2 { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 44px 0 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+  .grow { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; }
+  .grow .arrow { font-size: 24px; color: var(--muted); }
+  .grow .was { color: var(--muted); }
+  @media (max-width: 680px) { .grow { grid-template-columns: 1fr; } .grow .arrow { transform: rotate(90deg); justify-self: center; } }
+
+  /* mock notepad */
+  .stage { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .tabs { display: flex; gap: 4px; padding-left: 14px; }
+  .tabs span { font-family: var(--hand); background: var(--card); border: 1px solid var(--line); border-bottom: none;
+    border-radius: 10px 10px 0 0; padding: 6px 14px 4px; font-size: 15px; transition: background .3s; }
+  .tabs span.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .paper { background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px;
+    padding: 14px 18px; font-family: var(--hand); font-size: 18px;
+    background-image: repeating-linear-gradient(transparent 0 31px, var(--rule) 31px 32px); }
+  .tips { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+  .lines div, .results div { min-height: 32px; line-height: 32px; }
+  .sep { border: none; border-top: 2px dashed var(--muted); margin: 8px 0; opacity: .6; }
+  .results div { display: flex; justify-content: space-between; }
+  .results .nm { color: var(--accent); }
+  .results .val { font-weight: 700; }
+  .err { color: var(--warn); text-decoration: underline wavy var(--warn); }
+  .tip { position: relative; display: inline-block; margin-left: 8px; font-family: -apple-system, sans-serif; font-size: 13px;
+    background: var(--warn-soft); color: var(--warn); border-radius: 6px; padding: 0 8px; line-height: 24px; }
+  .flash { animation: fl .9s; }
+  @keyframes fl { from { background: var(--accent-soft); } to { background: transparent; } }
+  .narr h3 { margin: 0 0 6px; font-size: 15px; color: var(--accent); }
+  .narr p { margin: 0 0 12px; }
+  .crit { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+  .controls { display: flex; gap: 8px; margin-top: 14px; align-items: center; flex-wrap: wrap; }
+  button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--card); border-color: var(--accent); }
+  button:disabled { opacity: .4; cursor: default; }
+  .count { color: var(--muted); font-size: 14px; }
+
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+  summary { cursor: pointer; padding: 14px 18px; font-weight: 600; }
+  details > div { padding: 0 18px 16px; }
+  details ul { margin: 0; padding-left: 20px; }
+  .checks li { list-style: none; margin-left: -20px; }
+  .checks li::before { content: "☐ "; color: var(--accent); }
+  .pill { font-size: 12px; border-radius: 99px; padding: 2px 9px; font-weight: 600; margin-right: 6px; }
+  .now { background: var(--accent-soft); color: var(--accent); }
+  .later { background: var(--later-soft); color: var(--later); }
+  .q { background: var(--warn-soft); color: var(--warn); }
+  .open { border-left: 4px solid var(--warn); }
+  .note { color: var(--muted); font-size: 14px; margin-top: 40px; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">PRD · approved</span>
+  <h1>Quick Calc Pad</h1>
+  <p class="lede">A notepad-style calculator for quick percentage, discount, VAT, and interest answers, with no calculator gymnastics and no AI.</p>
+
+  <h2>What the PRD added to the scope</h2>
+  <div class="card grow">
+    <div class="was">Scope said: <em>“naming results so later lines can reuse them.”</em></div>
+    <div class="arrow">→</div>
+    <div>Now we know: every line is named <code>line1</code>, <code>line2</code>… automatically. Click a name to rename it, and every line that uses it updates too.</div>
+  </div>
+  <div class="card grow" style="margin-top:10px">
+    <div class="was">Scope said: <em>“a VAT button, plus a few more templates.”</em></div>
+    <div class="arrow">→</div>
+    <div>Now we know: your own <b>Notes</b> tab plus three template tabs, <b>VAT</b>, <b>Discounts</b>, and <b>Compound interest</b>. Each is a separate sheet, and switching never loses anything.</div>
+  </div>
+
+  <h2>The core journey: step through it</h2>
+  <div class="stage">
+    <div>
+      <div class="tabs"><span data-t="Notes">Notes</span><span data-t="VAT">VAT</span><span data-t="Discounts">Discounts</span><span data-t="Compound">Compound interest</span></div>
+      <div class="paper">
+        <div class="tips">Tip: type a calculation like “20% off 80”. Click a name to rename it.</div>
+        <div class="lines" id="lines"></div>
+        <hr class="sep">
+        <div class="results" id="results"></div>
+      </div>
+      <p class="count" style="margin-top:8px">Mock preview with a system handwriting font. The real font and colors are decided in the spec.</p>
+    </div>
+    <div class="card narr">
+      <h3 id="sTitle"></h3>
+      <p id="sText"></p>
+      <div class="crit" id="sCrit"></div>
+      <div class="controls">
+        <button id="prev">Back</button>
+        <button class="primary" id="next">Next</button>
+        <span class="count" id="sCount"></span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Features and how we'll know they work</h2>
+  <details open>
+    <summary>Typing calculations</summary>
+    <div>
+      <p>Each line is calculated as you type. Supported: <code>+ - * /</code>, brackets, powers, <code>X% of Y</code>, <code>X% off Y</code>, <code>Y + X%</code>, <code>Y - X%</code>.</p>
+      <ul class="checks"><li><code>20% off 80</code> shows 64</li><li><code>(2 + 3) * 4</code> shows 20</li><li><code>150 + 21%</code> shows 181.5</li><li>Results update with no button press</li><li>Empty lines show no result and no error</li></ul>
+    </div>
+  </details>
+  <details>
+    <summary>Line names and reuse</summary>
+    <div><ul class="checks"><li><code>line1 * 2</code> doubles line 1</li><li>Renaming <code>line1</code> to <code>price</code> updates every line that uses it, and results stay the same</li><li>Changing line 1 updates everything that depends on it</li></ul></div>
+  </details>
+  <details>
+    <summary>Errors and fixes</summary>
+    <div><ul class="checks"><li><code>pric + 5</code> shows “I don't know pric. Did you mean price?”, and clicking fixes it</li><li>One broken line doesn't stop the others</li></ul></div>
+  </details>
+  <details>
+    <summary>Templates (folder tabs)</summary>
+    <div><ul class="checks"><li>VAT shows a sheet with net, rate, VAT amount, and total</li><li>Going back to Notes shows your lines untouched</li><li>Changing the net updates the VAT amount and total</li><li>Discounts and Compound interest each load their own working example</li></ul></div>
+  </details>
+  <details>
+    <summary>Saving in the browser</summary>
+    <div><ul class="checks"><li>Reloading restores every tab, including template edits</li></ul></div>
+  </details>
+
+  <h2>States</h2>
+  <div class="card">
+    <ul style="margin:0;padding-left:20px">
+      <li><b>First visit:</b> intro tips visible, empty typing area, ready to type.</li>
+      <li><b>Line with an error:</b> marked with a tooltip, while other lines keep working.</li>
+      <li><b>Returning visit:</b> every tab is restored, and the page opens on Notes.</li>
+    </ul>
+  </div>
+
+  <h2>Boundary</h2>
+  <details>
+    <summary><span class="pill later">Deferred</span> Not in this version</summary>
+    <div><ul><li>Currencies and other live data (needs an API)</li><li>Fix suggestions for errors other than misspelled names</li><li>Units and dates</li></ul></div>
+  </details>
+  <details>
+    <summary><span class="pill later">Non-goals</span> Won't do</summary>
+    <div><ul><li>Accounts or logins</li><li>An AI assistant</li><li>Long documents</li></ul></div>
+  </details>
+  <details open class="open">
+    <summary><span class="pill q">Confirm</span> Assumptions</summary>
+    <div>
+            <p>My assumptions (correct any that are wrong):</p>
+      <ul><li>Only the math and phrases listed above are supported; anything else shows an error</li><li>Only misspelled names get a suggested fix</li><li>Answers show up to 2 decimal places</li><li>The intro tips stay visible</li><li>Template edits are saved; no “reset template” button yet</li></ul>
+    </div>
+  </details>
+
+  <p class="note">Companion to <code>devpost/prd.md</code>, which is the canonical plan.</p>
+</main>
+<script>
+  const steps = [
+    { tab: "Notes", t: "1 · Open the page", x: "No sign-up. You land on your own Notes tab, with template tabs beside it, tips, an empty typing area, and the results area below.", c: "First visit: tips visible, ready to type.",
+      lines: [], res: [] },
+    { tab: "Notes", t: "2 · Type a calculation", x: "The answer appears below as you type, under the line's automatic name.", c: "✓ 20% off 80 shows 64",
+      lines: ["20% off 80"], res: [["line1", "64"]] },
+    { tab: "Notes", t: "3 · Reuse it", x: "A later line uses line1 by name.", c: "✓ line1 * 2 doubles line 1",
+      lines: ["20% off 80", "line1 * 2"], res: [["line1", "64"], ["line2", "128"]] },
+    { tab: "Notes", t: "4 · Rename", x: "Click line1 in the results and type “price”. Line 2 updates to use the new name.", c: "✓ Every line that used it updates, and results stay the same",
+      lines: ["20% off 80", "price * 2"], res: [["price", "64"], ["line2", "128"]], flash: [0, 1] },
+    { tab: "Notes", t: "5 · Typo, then fix", x: "“pric” isn't a name. A tooltip explains and offers the fix.", c: "✓ Did you mean price? One click fixes it",
+      lines: ["20% off 80", "price * 2", "<span class='err'>pric</span> + 5<span class='tip'>Did you mean price?</span>"], res: [["price", "64"], ["line2", "128"], ["line3", "—"]] },
+    { t: "6 · Load the VAT tab", x: "You move to the VAT sheet, which already has named lines. Your Notes tab stays exactly as it was.", c: "✓ VAT loads net, rate, VAT amount, and total",
+      tab: "VAT", lines: ["net = 150", "rate = 21%", "vat = rate of net", "total = net + vat"], res: [["net", "150"], ["rate", "21%"], ["vat", "31.50"], ["total", "181.50"]] },
+    { t: "7 · Change a number", x: "Change net to 200, and everything below it recalculates right away.", c: "✓ That's the moment that sells it",
+      tab: "VAT", lines: ["net = 200", "rate = 21%", "vat = rate of net", "total = net + vat"], res: [["net", "200"], ["rate", "21%"], ["vat", "42"], ["total", "242"]], flash: [0, 2, 3] },
+    { t: "8 · Come back later", x: "Close the browser and come back. Every sheet, Notes and your edited VAT, is still there.", c: "✓ Reload restores every tab",
+      tab: "VAT", lines: ["net = 200", "rate = 21%", "vat = rate of net", "total = net + vat"], res: [["net", "200"], ["rate", "21%"], ["vat", "42"], ["total", "242"]] },
+  ];
+  let i = 0;
+  const $ = id => document.getElementById(id);
+  function render() {
+    const s = steps[i];
+    $("sTitle").textContent = s.t; $("sText").textContent = s.x; $("sCrit").textContent = s.c;
+    $("sCount").textContent = (i + 1) + " / " + steps.length;
+    $("lines").innerHTML = s.lines.map((l, k) => `<div class="${(s.flash||[]).includes(k)?'flash':''}">${l}</div>`).join("") || "<div>&nbsp;</div>";
+    $("results").innerHTML = s.res.map((r, k) => `<div class="${(s.flash||[]).includes(k)?'flash':''}"><span class="nm">${r[0]}</span><span class="val">${r[1]}</span></div>`).join("") || "<div>&nbsp;</div>";
+    document.querySelectorAll(".tabs span").forEach(t => t.classList.toggle("on", t.dataset.t === s.tab));
+    $("prev").disabled = i === 0; $("next").disabled = i === steps.length - 1;
+  }
+  $("next").onclick = () => { if (i < steps.length - 1) { i++; render(); } };
+  $("prev").onclick = () => { if (i > 0) { i--; render(); } };
+  render();
+</script>
+</body>
+</html>

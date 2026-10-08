@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quick Calc Pad Scope</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --ink: #1d1d1b; --muted: #6b6a64;
+    --line: #e2dfd6; --accent: #1f6f5c; --accent-soft: #e3f1ec;
+    --later: #9a6a12; --later-soft: #f8eedb; --cut: #a33b32; --cut-soft: #f7e3e0;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151514; --card: #1f1f1d; --ink: #ecebe6; --muted: #a09e96;
+      --line: #34332f; --accent: #5cc3a6; --accent-soft: #1d332c;
+      --later: #e0b25a; --later-soft: #3a2f1a; --cut: #e8857b; --cut-soft: #3a2220;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 40px 16px 80px; }
+  .tag { display: inline-block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 2px 10px; }
+  h1 { font-size: 40px; margin: 12px 0 4px; letter-spacing: -.02em; }
+  .lede { font-size: 19px; color: var(--muted); margin: 0 0 32px; }
+  h2 { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 40px 0 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+  .kernel { border-left: 4px solid var(--accent); font-size: 18px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 32px; } }
+  .card h3 { margin: 0 0 6px; font-size: 16px; }
+  .card p { margin: 0; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { fill: var(--ink); font-family: inherit; }
+  .box { fill: var(--card); stroke: var(--line); stroke-width: 1.5; }
+  .box.hl { fill: var(--accent-soft); stroke: var(--accent); }
+  .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+  .small { font-size: 12px; fill: var(--muted) !important; }
+  /* demo pad */
+  .pad { font-family: var(--mono); font-size: 15px; }
+  .pad .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--line);
+    opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; }
+  .pad .row.on { opacity: 1; transform: none; }
+  .pad .res { color: var(--accent); font-weight: 600; }
+  .pad .tpl { background: var(--accent-soft); }
+  .steps { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--card); border-color: var(--accent); }
+  .caption { color: var(--muted); font-size: 14px; margin-top: 10px; min-height: 1.5em; }
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+  summary { cursor: pointer; padding: 14px 18px; font-weight: 600; display: flex; gap: 10px; align-items: center; }
+  details > div { padding: 0 18px 14px 18px; }
+  details ul { margin: 0; padding-left: 20px; }
+  .pill { font-size: 12px; border-radius: 99px; padding: 2px 9px; font-weight: 600; }
+  .now { background: var(--accent-soft); color: var(--accent); }
+  .later { background: var(--later-soft); color: var(--later); }
+  .cut { background: var(--cut-soft); color: var(--cut); }
+  .note { color: var(--muted); font-size: 14px; margin-top: 40px; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">Scope · approved</span>
+  <h1>Quick Calc Pad</h1>
+  <p class="lede">A notepad-style calculator on a web page: type calculations in plain language, line by line, and see the answers right away.</p>
+
+  <h2>The unique kernel</h2>
+  <div class="card kernel">Percentages written the way people say them, such as <code>20% off 80</code> or <code>VAT 21% on 150</code>, with results you can name and reuse on later lines. Templates turn common jobs like VAT into “load it and change the numbers.”</div>
+
+  <h2>How it fits together</h2>
+  <div class="card">
+    <svg viewBox="0 0 800 210" role="img" aria-label="Person opens the page, types lines or loads a template, results update instantly, and the work is saved in the browser">
+      <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+      <rect class="box" x="10" y="70" width="150" height="70" rx="12"/>
+      <text x="85" y="100" text-anchor="middle" font-weight="600">Someone with</text>
+      <text x="85" y="120" text-anchor="middle" font-weight="600">a quick % question</text>
+      <rect class="box hl" x="230" y="20" width="200" height="60" rx="12"/>
+      <text x="330" y="47" text-anchor="middle" font-weight="600">Types lines</text>
+      <text x="330" y="66" text-anchor="middle" class="small">20% off 80 · price = …</text>
+      <rect class="box hl" x="230" y="130" width="200" height="60" rx="12"/>
+      <text x="330" y="157" text-anchor="middle" font-weight="600">Loads a template</text>
+      <text x="330" y="176" text-anchor="middle" class="small">VAT, discount… then edits numbers</text>
+      <rect class="box" x="500" y="70" width="140" height="70" rx="12"/>
+      <text x="570" y="100" text-anchor="middle" font-weight="600">Results update</text>
+      <text x="570" y="120" text-anchor="middle" class="small">later lines reuse earlier</text>
+      <rect class="box" x="680" y="70" width="110" height="70" rx="12"/>
+      <text x="735" y="100" text-anchor="middle" font-weight="600">Saved in</text>
+      <text x="735" y="120" text-anchor="middle" font-weight="600">browser</text>
+      <path class="arrow" marker-end="url(#a)" d="M160,95 C195,95 195,50 228,50"/>
+      <path class="arrow" marker-end="url(#a)" d="M160,115 C195,115 195,160 228,160"/>
+      <path class="arrow" marker-end="url(#a)" d="M430,50 C465,50 465,95 498,95"/>
+      <path class="arrow" marker-end="url(#a)" d="M430,160 C465,160 465,115 498,115"/>
+      <path class="arrow" marker-end="url(#a)" d="M640,105 L678,105"/>
+    </svg>
+  </div>
+
+  <h2>What “working” looks like: the one-minute demo</h2>
+  <div class="card">
+    <div class="pad" id="pad">
+      <div class="row" data-cap="A blank page opens. No sign-up."><span>&nbsp;</span><span></span></div>
+      <div class="row" data-cap="They type a calculation, and the answer appears."><span>20% off 80</span><span class="res">64</span></div>
+      <div class="row" data-cap="Results can be named…"><span>price = 120 + 30</span><span class="res">150</span></div>
+      <div class="row" data-cap="…and reused on later lines."><span>price * 2</span><span class="res">300</span></div>
+      <div class="row tpl" data-cap="Press the VAT button, and the template loads."><span>net = 150</span><span class="res">150</span></div>
+      <div class="row tpl" data-cap=""><span>vat = 21% of net</span><span class="res">31.50</span></div>
+      <div class="row tpl" data-cap="Change the numbers, and every result updates. That's the moment that sells it."><span>total = net + vat</span><span class="res">181.50</span></div>
+    </div>
+    <div class="caption" id="cap">Step through the demo from your scope. Illustrative values only.</div>
+    <div class="steps">
+      <button class="primary" id="next">Next step</button>
+      <button id="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h3>Who it's for</h3><p>Anyone who needs a quick discount, VAT amount, or price with tax, without doing several steps on a calculator or asking an AI.</p></div>
+    <div class="card"><h3>Why it matters to you</h3><p>“Something people can use quickly on a website.” You also want to practice defining an MVP “so I don't keep adding features over and over and never ship.”</p></div>
+    <div class="card"><h3>Core loop</h3><p>Open, type, see answers. Or press a template, change the numbers, done. No account, nothing to set up.</p></div>
+    <div class="card"><h3>Inspiration</h3><p><a href="https://soulver.app" style="color:var(--accent)">Soulver</a>: plain-language lines, answers in a column, lines that refer to each other. The feel: “enter and start typing.”</p></div>
+  </div>
+
+  <h2>The boundary</h2>
+  <details open>
+    <summary><span class="pill now">Now</span> In the proof of concept</summary>
+    <div><ul>
+      <li>Typing calculation lines with results shown right away: percentages, discounts, VAT, and general math (brackets, powers, and similar)</li>
+      <li>Naming results so later lines can reuse them</li>
+      <li>A VAT template button, plus a few more templates (such as discounts)</li>
+      <li>Saving the page in the browser so it's still there next time, with no account</li>
+    </ul></div>
+  </details>
+  <details>
+    <summary><span class="pill later">Later</span> Worth doing, not now</summary>
+    <div><ul><li>Currencies and anything else that needs live outside data, because they require an API.</li></ul></div>
+  </details>
+  <details>
+    <summary><span class="pill cut">Cut</span> Deliberately left out</summary>
+    <div><ul><li>Accounts and logins: “no username no nothing, just enter and start typing.”</li></ul></div>
+  </details>
+
+  <p class="note">Companion to <code>devpost/scope.md</code>, which is the canonical plan.</p>
+</main>
+<script>
+  const rows = [...document.querySelectorAll('#pad .row')];
+  const cap = document.getElementById('cap');
+  let i = 0;
+  document.getElementById('next').onclick = () => {
+    if (i >= rows.length) return;
+    rows[i].classList.add('on');
+    if (rows[i].dataset.cap) cap.textContent = rows[i].dataset.cap;
+    i++;
+  };
+  document.getElementById('reset').onclick = () => {
+    rows.forEach(r => r.classList.remove('on')); i = 0;
+    cap.textContent = 'Step through the demo from your scope. Illustrative values only.';
+  };
+</script>
+</body>
+</html>
