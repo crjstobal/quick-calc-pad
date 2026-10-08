@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Run `npm run dev` and open http://localhost:4321/quick-calc-pad/. Type `20% off 80`, then `line1 * 2` on a new line, and then a calculation of your own. You should see each answer appear below the dashed line next to its name as you type. Does the look and the handwriting feel the way you pictured it?
   Commit: `Add notepad page with live percentage calculations`
 
-- [ ] **2. Rename a result and every use follows**
+- [x] **2. Rename a result and every use follows**
   Becomes usable: Clicking `line1` in the results lets you type `price`. Line 1 becomes `price = 20% off 80`, every other `line1` changes to `price`, and the answers stay the same.
   Why now: Reusable names are the second half of the kernel, and renaming changes the text itself, so it has to work before errors and templates build on it.
   PRD ref: `prd.md > Line Names and Reuse`, `prd.md > The Core Journey` (step 5)
@@ -61,7 +61,7 @@ Build mode: fast
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 1 (look, handwriting, and the feel of live answers, while they're still cheap to change)
+- [x] Early usable behavior explored — after slice 1 (look, handwriting, and the feel of live answers, while they're still cheap to change)
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review

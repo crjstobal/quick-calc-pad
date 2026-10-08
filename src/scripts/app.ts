@@ -1,5 +1,6 @@
 // Connects the notepad to the calculator: recalculates and redraws on every keystroke.
 import { calculateSheet, type LineResult } from "../lib/calculate";
+import { renameLine } from "../lib/rename";
 
 const pad = document.querySelector<HTMLTextAreaElement>("#pad")!;
 const results = document.querySelector<HTMLOListElement>("#results")!;
@@ -19,9 +20,12 @@ function renderResult(result: LineResult): HTMLLIElement {
   row.className = "result";
   row.dataset.line = String(result.lineNumber);
 
-  const name = document.createElement("span");
+  const name = document.createElement("button");
+  name.type = "button";
   name.className = "name";
   name.textContent = result.name;
+  name.title = "Click to rename";
+  name.addEventListener("click", () => startRename(row, name, result));
 
   const value = document.createElement("span");
   value.className = "value";
@@ -34,6 +38,45 @@ function renderResult(result: LineResult): HTMLLIElement {
 
   row.append(name, value);
   return row;
+}
+
+// Swaps the name for a text box. Enter or clicking away saves, Escape cancels.
+function startRename(row: HTMLLIElement, nameButton: HTMLButtonElement, result: LineResult) {
+  const input = document.createElement("input");
+  input.className = "rename";
+  input.value = result.name;
+  input.setAttribute("aria-label", `New name for ${result.name}`);
+  input.size = Math.max(result.name.length, 6);
+  nameButton.replaceWith(input);
+  input.focus();
+  input.select();
+
+  let done = false;
+  const finish = (save: boolean) => {
+    if (done) return;
+    if (save) {
+      const outcome = renameLine(pad.value, result.lineNumber, input.value);
+      if ("error" in outcome) {
+        input.setCustomValidity(outcome.error);
+        input.reportValidity();
+        return;
+      }
+      pad.value = outcome.text;
+    }
+    done = true;
+    update();
+  };
+
+  input.addEventListener("input", () => input.setCustomValidity(""));
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") finish(true);
+    if (event.key === "Escape") finish(false);
+  });
+  input.addEventListener("blur", () => {
+    finish(true);
+    if (!done) finish(false); // an invalid name on blur is dropped
+  });
+  row.dataset.renaming = "true";
 }
 
 function growPad() {

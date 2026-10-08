@@ -224,7 +224,31 @@ body {
   color: var(--ink-soft);
   background: none;
   border: none;
+  border-bottom: 1px dotted transparent;
   padding: 0;
+  cursor: pointer;
+}
+
+.result .name:hover,
+.result .name:focus-visible {
+  color: var(--ink);
+  border-bottom-color: var(--ink-soft);
+  outline: none;
+}
+
+.result .rename {
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 6px;
+  padding: 0 6px;
+  line-height: 1.4;
+  max-width: 60%;
+}
+
+.result .rename:invalid {
+  border-color: var(--error);
 }
 
 .result .value {
