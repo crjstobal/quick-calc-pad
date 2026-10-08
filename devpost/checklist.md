@@ -39,7 +39,7 @@ Build mode: fast
   Learner check: Under a line named `price`, type `pric + 5`. You should see the red row and the "Did you mean price?" tooltip. Click the fix and check the answer appears. Then type nonsense on another line and read the message.
   Commit: `Add error tooltips with name fixes`
 
-- [ ] **4. Folder tabs with templates, remembered after reload**
+- [x] **4. Folder tabs with templates, remembered after reload**
   Becomes usable: Notes, VAT, Discounts, and Compound interest tabs each hold their own sheet. Clicking VAT shows its working template, and changing `net` updates everything below. Going back to Notes shows your lines untouched. Reloading the page restores every tab and opens on Notes.
   Why now: Tabs and saving share one piece (the saved sheets), and they complete the PRD's journey. They come after the calculator because a template is only useful once the lines in it calculate, rename, and explain errors.
   PRD ref: `prd.md > Templates`, `prd.md > Saving in the Browser`, `prd.md > The Core Journey` (steps 7–9), `prd.md > States and Boundaries`

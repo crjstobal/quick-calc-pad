@@ -1,10 +1,17 @@
 // Connects the notepad to the calculator: recalculates and redraws on every keystroke.
 import { calculateSheet, type LineResult } from "../lib/calculate";
 import { fixName, renameLine } from "../lib/rename";
+import { loadSheets, saveSheets } from "../lib/storage";
+import type { SheetId } from "../lib/templates";
 
 const pad = document.querySelector<HTMLTextAreaElement>("#pad")!;
 const results = document.querySelector<HTMLOListElement>("#results")!;
 const gutter = document.querySelector<HTMLDivElement>("#gutter")!;
+const tabs = [...document.querySelectorAll<HTMLButtonElement>(".tab")];
+
+// Every tab's text, restored from the browser. The page always opens on Notes.
+const sheets = loadSheets(localStorage);
+let active: SheetId = "notes";
 
 // Small name label next to each typed line, in the paper's margin.
 function renderLabel(result: LineResult): HTMLSpanElement {
@@ -109,13 +116,30 @@ function growPad() {
   pad.style.height = `${pad.scrollHeight}px`;
 }
 
+// Recalculates the visible sheet, redraws it, and saves every tab.
 function update() {
+  sheets[active] = pad.value;
+  saveSheets(localStorage, sheets);
   const sheet = calculateSheet(pad.value);
   results.replaceChildren(...sheet.map(renderResult));
   gutter.replaceChildren(...sheet.map(renderLabel));
   growPad();
 }
 
+// Each tab is its own sheet; switching never changes another tab's text.
+function showSheet(id: SheetId) {
+  sheets[active] = pad.value;
+  active = id;
+  pad.value = sheets[id];
+  tabs.forEach((tab) => tab.setAttribute("aria-selected", String(tab.dataset.sheet === id)));
+  update();
+}
+
+tabs.forEach((tab) => tab.addEventListener("click", () => {
+  showSheet(tab.dataset.sheet as SheetId);
+  pad.focus();
+}));
 pad.addEventListener("input", update);
+pad.value = sheets.notes;
 update();
 pad.focus();
