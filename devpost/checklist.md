@@ -49,7 +49,7 @@ Build mode: fast
   Learner check: Type something in Notes, open VAT and change `net` to 200, then open Discounts and Compound interest. Go back to Notes, then reload the page. Everything should be where you left it.
   Commit: `Add template tabs and browser saving`
 
-- [ ] **5. Live on GitHub Pages**
+- [x] **5. Live on GitHub Pages**
   Becomes usable: Anyone can open Quick Calc Pad at `https://<github-user>.github.io/quick-calc-pad/`, from the public repo that also includes an English README and an open-source license.
   Why now: Last, because it publishes the finished behavior. Creating the public repo and pushing is an outward-facing step, so it happens only with the learner's go-ahead.
   PRD ref: `prd.md > What We're Building`
