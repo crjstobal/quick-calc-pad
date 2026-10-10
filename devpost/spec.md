@@ -64,6 +64,7 @@ Rewrites one line of friendly text into plain math. Rules, applied in this order
 - `A of B` → `(A) * (B)` (so `21% of 150` and `rate of net` both work)
 - any remaining `A%` → `(A/100)`
 - `name = …` at the start is kept as the line's name; only the right side is translated.
+- Word operators (`plus`, `minus`, `times`, `divided by`, `multiplied by`) become `+ - * /` first. A line that then starts with `+`, `*`, `/`, `^`, or `- ` (minus and a space) continues from the answer of the nearest non-empty line above: the calculator puts that answer in front and translates the whole thing, so `plus 10%` adds 10% of it.
 - Currency symbols (`$ € £`) are removed before translating and reported back, so the calculator can put them on the answer.
 
 PRD ref: `prd.md > Typing Calculations`.

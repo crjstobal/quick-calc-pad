@@ -66,6 +66,7 @@ Build mode: fast
 
 ## Final Review
 
+- [ ] Word operators and running totals: `plus`, `minus`, `times`, `divided by` work as `+ - * /`, and a line that starts with an operator (`plus 30`, `+ 30`) continues from the answer just above (`20% off 80` then `plus 30` = 94). Learner found it while exploring.
 - [ ] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
@@ -85,3 +86,4 @@ Activity mode:
 - Astro 7.x instead of 5.x, with Node 22.12 or newer — the current Astro release is 7.3; nothing in the plan depended on version 5.
 - Unknown names are rejected before math.js runs — the risk check showed math.js silently turns unknown words like `m` or `cm` into units, and `10 % 3` means remainder. Our translator already owns every `%`, so only the unit handling changed.
 - Margin name labels on typed lines and currency symbols as labels (`$5 + $10` = `$15`) were added — the learner asked for both at the first hands-on check; conversion between currencies stays deferred.
+- Word operators and running totals were added — the learner expected `plus 30` on its own line to add to the answer above, like Soulver.

@@ -45,6 +45,7 @@ Source: `scope.md > The POC Boundary`.
 - Supported in this version:
   - Basic math: `+ - * /`, brackets, and powers.
   - Percentage phrases: `X% of Y`, `X% off Y`, `Y + X%`, `Y - X%`.
+  - Word operators `plus`, `minus`, `times`, `divided by`, and running totals: a line that starts with an operator (`plus 30`, `+ 30`) continues from the answer just above. (Added at the final review.)
   - Currency symbols `$`, `€`, `£` as labels, not conversions: the answer keeps the symbol, and so do names that hold money. (Added at the first hands-on check.)
 - [ ] Typing `20% off 80` shows `64`.
 - [ ] Typing `(2 + 3) * 4` shows `20`.
@@ -54,6 +55,7 @@ Source: `scope.md > The POC Boundary`.
 - [ ] `$5 + $10` shows `$15`, and after `price = $80`, `price * 2` shows `$160`.
 - [ ] Mixing symbols on one line (`$5 + €3`) shows an error.
 - [ ] Each typed line has its name in the margin.
+- [ ] `20% off 80` followed by `plus 30` shows `94`.
 
 ### Line Names and Reuse
 Source: `scope.md > The Unique Kernel`.

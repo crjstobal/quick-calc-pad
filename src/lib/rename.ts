@@ -3,7 +3,7 @@ import { calculateSheet } from "./calculate";
 import { parseLine } from "./translate";
 
 const VALID_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
-const RESERVED = new Set(["pi", "e", "tau", "of", "off", "mod", "to", "in"]);
+const RESERVED = new Set(["pi", "e", "tau", "of", "off", "mod", "to", "in", "plus", "minus", "times", "divided", "multiplied", "by"]);
 
 export type RenameResult = { text: string } | { error: string };
 

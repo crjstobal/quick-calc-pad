@@ -34,9 +34,28 @@ export function translateExpression(expr: string): string {
   return percentLiterals(text).replace(/\s+of\s+/gi, " * ");
 }
 
+// Words people type instead of symbols: `5 plus 3`, `64 divided by 4`.
+const WORD_OPERATORS: [RegExp, string][] = [
+  [/\bdivided\s+by\b/gi, "/"],
+  [/\bmultiplied\s+by\b/gi, "*"],
+  [/\bplus\b/gi, "+"],
+  [/\bminus\b/gi, "-"],
+  [/\btimes\b/gi, "*"],
+];
+
+export function replaceWordOperators(expr: string): string {
+  return WORD_OPERATORS.reduce((text, [word, symbol]) => text.replace(word, symbol), expr);
+}
+
+// A line that starts with an operator keeps going from the answer above:
+// `plus 30`, `+ 30`, `* 2`, `/ 4`. A minus counts only with a space after it,
+// so `-30` is still just a negative number.
+const CONTINUES = /^(?:[+*/^]|-\s)/;
+
 export interface ParsedLine {
   name: string | null; // set when the line starts with `name =`
-  expression: string; // the friendly text after the name
+  expression: string; // the friendly text after the name, with word operators as symbols
+  continues: boolean; // starts with an operator, so it uses the answer above
   math: string; // what math.js will calculate
   isPercent: boolean; // the line is just a percentage, like `rate = 21%`
   currencies: string[]; // currency symbols typed on the line, like `$`
@@ -51,13 +70,20 @@ const NAMED = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.*)$/;
 export function parseLine(line: string): ParsedLine {
   const named = line.match(NAMED);
   const name = named ? named[1] : null;
-  const expression = (named ? named[2] : line).trim();
+  const expression = replaceWordOperators((named ? named[2] : line).trim());
   const currencies = [...new Set(expression.match(CURRENCY) ?? [])];
   return {
     name,
     expression,
+    continues: CONTINUES.test(expression),
     math: translateExpression(expression.replace(CURRENCY, "")),
     isPercent: new RegExp(String.raw`^${NUM}\s*%$`).test(expression),
     currencies,
   };
+}
+
+// The math for a line that continues from the answer above, e.g. `(64) + 30`.
+// Translating the whole thing lets `plus 10%` mean "64 plus 10%".
+export function continueFrom(previous: number, expression: string): string {
+  return translateExpression(`${previous} ${expression.replace(CURRENCY, "")}`);
 }

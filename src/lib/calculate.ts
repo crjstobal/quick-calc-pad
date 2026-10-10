@@ -1,6 +1,6 @@
 // Calculates a whole sheet, top to bottom, one result per line.
 import { create, all, type MathNode, type SymbolNode } from "mathjs";
-import { parseLine } from "./translate";
+import { continueFrom, parseLine } from "./translate";
 import { suggestName } from "./suggest";
 
 const math = create(all);
@@ -42,6 +42,7 @@ export function calculateSheet(text: string): LineResult[] {
   const known: Record<string, number> = {};
   const knownCurrency: Record<string, string> = {};
   const results: LineResult[] = [];
+  let previous: LineResult | undefined; // the last non-empty line, for running totals
 
   // Names defined anywhere in the sheet, to explain "used before it's defined".
   const definedLater = new Set(lines.map((l) => parseLine(l).name).filter(Boolean) as string[]);
@@ -53,15 +54,27 @@ export function calculateSheet(text: string): LineResult[] {
     const name = parsed.name ?? `line${lineNumber}`;
     const result: LineResult = { lineNumber, name };
     results.push(result);
+    const above = previous;
+    previous = result;
 
     if (!parsed.expression) {
       result.error = `Nothing to calculate after "${name} =".`;
       return;
     }
 
+    let mathText = parsed.math;
+    if (parsed.continues) {
+      if (above?.value === undefined) {
+        result.error = "There's no answer just above to continue from.";
+        return;
+      }
+      mathText = continueFrom(above.value, parsed.expression);
+      if (above.currency) parsed.currencies.push(above.currency);
+    }
+
     let node: MathNode;
     try {
-      node = math.parse(parsed.math);
+      node = math.parse(mathText);
     } catch {
       result.error = "I can't read this line.";
       return;
