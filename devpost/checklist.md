@@ -62,24 +62,24 @@ Build mode: fast
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored — after slice 1 (look, handwriting, and the feel of live answers, while they're still cheap to change)
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
 
-- [ ] Word operators and running totals: `plus`, `minus`, `times`, `divided by` work as `+ - * /`, and a line that starts with an operator (`plus 30`, `+ 30`) continues from the answer just above (`20% off 80` then `plus 30` = 94). Learner found it while exploring.
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Word operators and running totals: `plus`, `minus`, `times`, `divided by` work as `+ - * /`, and a line that starts with an operator (`plus 30`, `+ 30`) continues from the answer just above (`20% off 80` then `plus 30` = 94). Learner found it while exploring.
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [x] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence:
-Route and stops:
-Edit outcome:
-Reflection:
-Activity mode:
+Activity and evidence: Evidence-based recap tied to the learning goal (defining an MVP): `scope.md > Later` kept currency conversion out when currency symbols were requested; `prd.md > Product Decisions` capped templates at three; mid-build additions recorded under Revisions.
+Route and stops: Reference route only (not toured): `src/scripts/app.ts` update() → `src/lib/translate.ts` parseLine()/continueFrom() → `src/lib/calculate.ts` calculateSheet().
+Edit outcome: Not applicable (recap, no hands-on edit).
+Reflection: Offered as optional at hand-off.
+Activity mode: Recap with app map (fast mode, learner ready to ship).
 
 ## Revisions
 

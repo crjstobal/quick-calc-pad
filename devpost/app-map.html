@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quick Calc Pad Map</title>
+<style>
+  :root {
+    --bg: #efe9dc; --card: #fdf8e8; --ink: #1e2a4a; --muted: #5b6480; --line: #ddd2b4;
+    --accent: #1f6f5c; --accent-soft: #e3f1ec; --code: #f4ecd4;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1b1a18; --card: #26241f; --ink: #ece6d6; --muted: #a8a290; --line: #3a362d;
+      --accent: #5cc3a6; --accent-soft: #1d332c; --code: #302d26;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 36px 16px 64px; }
+  h1 { font-size: 34px; margin: 0 0 4px; letter-spacing: -.01em; }
+  .lede { color: var(--muted); margin: 0 0 8px; font-size: 18px; }
+  .meta { color: var(--muted); font-size: 13px; margin: 0 0 28px; }
+  h2 { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 36px 0 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--code); padding: 1px 5px; border-radius: 4px; }
+  pre { font-family: var(--mono); font-size: 13px; background: var(--code); border-radius: 10px; padding: 12px 14px; overflow-x: auto; margin: 10px 0 0; }
+  ul { margin: 0; padding-left: 20px; } li { margin: 4px 0; }
+  .pieces { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .pieces .card h3 { margin: 0 0 4px; font-size: 16px; }
+  .pieces .card p { margin: 0; font-size: 15px; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { fill: var(--ink); font-family: -apple-system, sans-serif; font-size: 13px; }
+  svg .sub { fill: var(--muted); font-size: 11px; font-family: var(--mono); }
+  svg .box { fill: var(--card); stroke: var(--line); stroke-width: 1.5; }
+  svg .hl { fill: var(--accent-soft); stroke: var(--accent); }
+  svg .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+  ol.route { padding-left: 0; list-style: none; counter-reset: s; margin: 0; }
+  ol.route > li { counter-increment: s; position: relative; padding: 0 0 18px 44px; }
+  ol.route > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+    background: var(--accent); color: var(--card); font-weight: 700; display: grid; place-items: center; }
+  .where { font-family: var(--mono); font-size: 14px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  td { padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td:first-child { width: 42%; }
+  details { margin-top: 10px; } summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+  summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .practice { border-left: 4px solid var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Quick Calc Pad: app map</h1>
+  <p class="lede">A one-page guide to where everything lives in your notepad calculator.</p>
+  <p class="meta">Snapshot of commit <code>4545292</code> (2026-10-10). The code can change after this, so treat it as a starting point.</p>
+
+  <h2>The big picture</h2>
+  <div class="card">
+    <p style="margin:0">One static <b>Astro</b> page. A script in the page runs in your visitor's browser: every keystroke, it reads the sheet line by line, rewrites friendly phrases into plain math, calculates with <b>math.js</b>, draws the answers, and saves every tab to <b>localStorage</b>. There's no server and no API. GitHub Pages serves the built files.</p>
+  </div>
+
+  <div class="pieces" style="margin-top:12px">
+    <div class="card"><h3>The page</h3><p><code>src/pages/index.astro</code> and <code>src/styles/notepad.css</code>: tabs, tips, the ruled textarea, results.</p></div>
+    <div class="card"><h3>The wiring</h3><p><code>src/scripts/app.ts</code>: listens for typing and clicks, draws results, tooltips, margin names.</p></div>
+    <div class="card"><h3>The brains</h3><p><code>src/lib/</code>: <code>translate.ts</code>, <code>calculate.ts</code>, <code>rename.ts</code>, <code>suggest.ts</code>. No page code, so the tests can check them.</p></div>
+    <div class="card"><h3>Memory</h3><p><code>src/lib/storage.ts</code> and <code>templates.ts</code>: saved tabs, or the templates on a first visit.</p></div>
+  </div>
+
+  <h2>Follow one action: typing “plus 30” under “20% off 80”</h2>
+  <div class="card">
+    <svg viewBox="0 0 820 200" role="img" aria-label="Typing in the textarea calls update in app.ts, which calls calculateSheet in calculate.ts; it uses parseLine and continueFrom in translate.ts, then math.js; results are drawn and the sheets saved to localStorage.">
+      <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a8574"/></marker></defs>
+      <rect class="box" x="8" y="64" width="140" height="64" rx="12"/><text x="78" y="92" text-anchor="middle" font-weight="600">You type</text><text x="78" y="111" text-anchor="middle" class="sub">plus 30</text>
+      <rect class="box hl" x="188" y="64" width="150" height="64" rx="12"/><text x="263" y="92" text-anchor="middle" font-weight="600">update()</text><text x="263" y="111" text-anchor="middle" class="sub">scripts/app.ts</text>
+      <rect class="box hl" x="378" y="10" width="190" height="64" rx="12"/><text x="473" y="38" text-anchor="middle" font-weight="600">calculateSheet()</text><text x="473" y="57" text-anchor="middle" class="sub">lib/calculate.ts</text>
+      <rect class="box hl" x="378" y="120" width="190" height="64" rx="12"/><text x="473" y="148" text-anchor="middle" font-weight="600">parseLine · continueFrom</text><text x="473" y="167" text-anchor="middle" class="sub">lib/translate.ts</text>
+      <rect class="box" x="608" y="10" width="200" height="64" rx="12"/><text x="708" y="38" text-anchor="middle" font-weight="600">Result row: line2 94</text><text x="708" y="57" text-anchor="middle" class="sub">renderResult()</text>
+      <rect class="box" x="608" y="120" width="200" height="64" rx="12"/><text x="708" y="148" text-anchor="middle" font-weight="600">localStorage</text><text x="708" y="167" text-anchor="middle" class="sub">saveSheets()</text>
+      <path class="arrow" marker-end="url(#a)" d="M148,96 L186,96"/>
+      <path class="arrow" marker-end="url(#a)" d="M338,86 C360,86 356,42 376,42"/>
+      <path class="arrow" marker-end="url(#a)" d="M473,74 L473,118"/>
+      <path class="arrow" marker-end="url(#a)" d="M568,42 L606,42"/>
+      <path class="arrow" marker-end="url(#a)" d="M338,108 C470,200 560,152 606,152"/>
+    </svg>
+  </div>
+
+  <h2>Reference route (3 stops)</h2>
+  <div class="card">
+    <ol class="route">
+      <li>
+        <div class="where">src/scripts/app.ts → update()</div>
+        Runs on every keystroke. It stores the textarea text in <code>sheets[active]</code>, saves with <code>saveSheets</code>, then redraws the results and margin names from <code>calculateSheet(pad.value)</code>.
+      </li>
+      <li>
+        <div class="where">src/lib/translate.ts → parseLine() and continueFrom()</div>
+        <code>parseLine</code> splits off a <code>name =</code>, turns <code>plus</code> into <code>+</code>, removes <code>$ € £</code>, and notices the line starts with an operator (<code>continues</code>). <code>continueFrom</code> puts the answer above in front: <code>64 + 30</code>.
+        <details><summary>Why “plus 10%” adds 10%</summary>
+          <p>continueFrom translates the whole joined text, so <code>200 + 10%</code> hits the <code>addOrSubtractPercent</code> rule and becomes <code>(200) * (1 + 10/100)</code> = 220.</p>
+        </details>
+      </li>
+      <li>
+        <div class="where">src/lib/calculate.ts → calculateSheet()</div>
+        Walks the lines top to bottom, keeping each answer under its name in <code>known</code>. Unknown names are rejected before math.js runs (so <code>cm</code> never becomes a unit), currencies are carried in <code>knownCurrency</code>, and <code>formatNumber</code> rounds to 2 decimals.
+        <pre>if (parsed.continues) {
+  if (above?.value === undefined) { result.error = &quot;There&#39;s no answer just above to continue from.&quot;; return; }
+  mathText = continueFrom(above.value, parsed.expression);
+}</pre>
+      </li>
+    </ol>
+  </div>
+
+  <h2>To change this, start here</h2>
+  <div class="card">
+    <table>
+      <tr><td>Add or edit a template tab</td><td><code>src/lib/templates.ts</code> (<code>TEMPLATES</code>), plus a button in the <code>tabs</code> list in <code>src/pages/index.astro</code></td></tr>
+      <tr><td>Add a new phrase, like “VAT 21% on 150”</td><td><code>translateExpression()</code> in <code>src/lib/translate.ts</code>, then a test in <code>tests/calculate.test.ts</code></td></tr>
+      <tr><td>Add a word operator or currency symbol</td><td><code>WORD_OPERATORS</code> or <code>CURRENCY</code> in <code>src/lib/translate.ts</code></td></tr>
+      <tr><td>Change error messages</td><td>The <code>result.error = …</code> lines in <code>calculateSheet()</code></td></tr>
+      <tr><td>Colors, font size, paper look</td><td><code>:root</code> variables at the top of <code>src/styles/notepad.css</code></td></tr>
+      <tr><td>Intro tips text</td><td><code>&lt;p class="tips"&gt;</code> in <code>src/pages/index.astro</code></td></tr>
+    </table>
+  </div>
+
+  <h2>A practice to reuse</h2>
+  <div class="card practice">
+    <p style="margin-top:0"><b>Write the core idea and a “Later” list before you build, then check every new idea against them.</b></p>
+    <ul>
+      <li><b>In this project:</b> <code>devpost/scope.md</code> named the core idea (plain-language percentages with reusable answers) and put currency conversion under <i>Later</i> because it needs an API.</li>
+      <li><b>Evidence it worked:</b> mid-build requests (currency symbols, margin names, <code>plus 30</code>) were each checked against that line and recorded under <i>Revisions</i> in <code>devpost/checklist.md</code>. Symbols-as-labels got in; conversion stayed out. Templates stayed at three, as decided in <code>prd.md › Product Decisions</code>.</li>
+      <li><b>Next project:</b> before writing code, write one sentence for the core idea and a short Later list. When an idea appears mid-build, ask: does it strengthen the core idea, and can I show it in a one-minute demo? If not, it goes on Later.</li>
+    </ul>
+  </div>
+
+  <h2>Run it again</h2>
+  <div class="card">
+    <pre>npm install
+npm run dev     # open http://localhost:4321/quick-calc-pad/
+npm test        # 48 checks: calculator, renaming, errors, running totals, templates, saving
+git push        # GitHub Actions tests, builds, and redeploys to https://crjstobal.github.io/quick-calc-pad/</pre>
+  </div>
+</main>
+</body>
+</html>
